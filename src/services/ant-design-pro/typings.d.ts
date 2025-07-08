@@ -20,14 +20,18 @@ declare namespace API {
       city?: { label?: string; key?: string };
     };
     address?: string;
+
     phone?: string;
+    nickname?: string;
+    uid?: string;
+
   };
 
-  type LoginResult = {
-    status?: string;
-    type?: string;
-    currentAuthority?: string;
-  };
+  // type LoginResult = {
+  //   status?: string;
+  //   type?: string;
+  //   currentAuthority?: string;
+  // };
 
   type PageParams = {
     current?: number;
@@ -65,7 +69,7 @@ declare namespace API {
     username?: string;
     password?: string;
     autoLogin?: boolean;
-    type?: string;
+    // type?: string;
   };
 
   type ErrorResponse = {

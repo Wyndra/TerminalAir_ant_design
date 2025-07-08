@@ -50,7 +50,9 @@ export async function getInitialState(): Promise<{
 // ProLayout 支持的api https://procomponents.ant.design/components/layout
 export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) => {
   return {
-    actionsRender: () => [<Question key="doc" />, <SelectLang key="SelectLang" />],
+    actionsRender: () => [
+    // <Question key="doc" />, <SelectLang key="SelectLang" />
+  ],
     avatarProps: {
       src: initialState?.currentUser?.avatar,
       title: <AvatarName />,
@@ -58,9 +60,10 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
         return <AvatarDropdown>{avatarChildren}</AvatarDropdown>;
       },
     },
-    waterMarkProps: {
-      content: initialState?.currentUser?.name,
-    },
+    // 水印放开
+    // waterMarkProps: {
+    //   content: initialState?.currentUser?.nickname,
+    // },
     footerRender: () => <Footer />,
     onPageChange: () => {
       const { location } = history;
@@ -122,6 +125,17 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
         </>
       );
     },
+    theme: {
+      // 拓展主题色
+      token: {
+        // Seed Token，影响范围大
+        // colorPrimary: '#00b96b',
+        borderRadius: 9,
+
+        // 派生变量，影响范围小
+        // colorBgContainer: '#f6ffed',
+      },
+    },
     ...initialState?.settings,
   };
 };
@@ -132,5 +146,6 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
  * @doc https://umijs.org/docs/max/request#配置
  */
 export const request = {
+  baseURL: "http://localhost:8099",
   ...errorConfig,
 };

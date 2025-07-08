@@ -1,4 +1,8 @@
-﻿/**
+﻿import component from "@/locales/bn-BD/component";
+import { pa } from "element-plus/es/locale";
+import path from "path";
+
+/**
  * @name umi 的路由配置
  * @description 只支持 path,component,routes,redirect,wrappers,name,icon 的配置
  * @param path  path 只支持两种占位符配置，第一种是动态参数 :id 的形式，第二种是 * 通配符，通配符只能出现路由字符串的最后。
@@ -22,12 +26,12 @@ export default [
       },
     ],
   },
-  {
-    path: '/welcome',
-    name: 'welcome',
-    icon: 'smile',
-    component: './Welcome',
-  },
+  // {
+  //   path: '/welcome',
+  //   name: 'welcome',
+  //   icon: 'smile',
+  //   component: './Welcome',
+  // },
   {
     path: '/admin',
     name: 'admin',
@@ -45,6 +49,7 @@ export default [
       },
     ],
   },
+  
   {
     name: 'list.table-list',
     icon: 'table',
@@ -52,8 +57,45 @@ export default [
     component: './TableList',
   },
   {
+    name: 'main',
     path: '/',
-    redirect: '/welcome',
+    component: './main',
+    menuRender: false,
+    hideInMenu: true,
+  },
+  {
+    path: '/credentials',
+    name: 'credentials',
+    icon: 'WalletOutlined',
+    component: './credentials',
+    routes: [
+      {
+        path: '/credentials',
+        redirect: '/credentials/list',
+      },
+      // {
+      //   path: '/credentials/list',
+      //   name: 'credentials-list',
+      //   component: './credentials/list',
+      // }
+    ]
+  },
+  {
+    name: 'account',
+    path: '/account',
+    icon: 'user',
+    routes: [
+      {
+        path: '/account',
+        redirect: '/account/center',
+      },
+      {
+        name: 'settings',
+        icon: "smile",
+        path: '/account/settings',
+        component: './account/settings',
+      }
+    ]
   },
   {
     path: '*',

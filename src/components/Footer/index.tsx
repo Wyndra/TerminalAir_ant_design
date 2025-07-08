@@ -9,24 +9,33 @@ const Footer: React.FC = () => {
         background: 'none',
       }}
       links={[
+        
+        
+
+        // // {
+        // //   key: 'github',
+        // //   title: <GithubOutlined />,
+        // //   href: 'https://github.com/ant-design/ant-design-pro',
+        // //   blankTarget: true,
+        // // },
         {
-          key: 'Ant Design Pro',
-          title: 'Ant Design Pro',
-          href: 'https://pro.ant.design',
+          key: 'Terminal Air',
+          title: 'Terminal Air',
+          href: 'https://term.srcandy.top',
           blankTarget: true,
         },
         {
-          key: 'github',
-          title: <GithubOutlined />,
-          href: 'https://github.com/ant-design/ant-design-pro',
+          key: 'muchui',
+          title: '宁波慕垂网络科技有限公司',
+          href: 'https://term.srcandy.top',
           blankTarget: true,
         },
         {
-          key: 'Ant Design',
-          title: 'Ant Design',
-          href: 'https://ant.design',
+          key: 'copyright',
+          title: '浙ICP备2023031974号',
+          href: 'https://beian.miit.gov.cn/',
           blankTarget: true,
-        },
+        }
       ]}
     />
   );

@@ -264,7 +264,7 @@ const TableList: React.FC = () => {
             <PlusOutlined /> <FormattedMessage id="pages.searchTable.new" defaultMessage="New" />
           </Button>,
         ]}
-        request={rule}
+        // request={rule}
         columns={columns}
         rowSelection={{
           onChange: (_, selectedRows) => {
