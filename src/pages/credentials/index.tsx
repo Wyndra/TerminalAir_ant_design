@@ -1,9 +1,13 @@
 import { getCredentialsList, CredentialsItem } from "@/services/credentials";
 import { PlusOutlined } from "@ant-design/icons";
 import { ModalForm, PageContainer, ProBreadcrumb, ProCard, ProColumns, ProForm, ProFormText, ProTable } from "@ant-design/pro-components";
-import { Button, Form, Tag } from "antd";
+import { Button, Form, message, Tag } from "antd";
 
 const Credentials: React.FC = () => {
+    const handleDelete = () => {
+        // 删除逻辑
+        message.success('删除成功');
+    };
     const [form] = Form.useForm()
     const columns: ProColumns<CredentialsItem>[] = [
         {
@@ -56,7 +60,7 @@ const Credentials: React.FC = () => {
         {
             title: '操作',
             key: 'action',
-            render: () => <a>编辑</a>,
+            render: () => <a onClick={handleDelete}>删除</a>,
         },
     ];
     return (

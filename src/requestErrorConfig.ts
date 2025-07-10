@@ -60,6 +60,7 @@ export const errorConfig: RequestConfig = {
         // 发送请求时出了点问题
         msg.error('Request error, please retry.');
       }
+      localStorage.removeItem('token'); // 清除 token
     },
   },
 
@@ -83,6 +84,11 @@ export const errorConfig: RequestConfig = {
       // 拦截响应数据，进行个性化处理
       const { data } = response as unknown as ResponseStructure;
 
+      
+      data?.data.result?.map((item: any) => {
+        item.tags = item.tags + ',测试标签';  
+      });
+      
       if (data?.status === 500) {
         msg.error('请求失败！');
       }

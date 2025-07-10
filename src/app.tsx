@@ -145,6 +145,7 @@ export const layout: RunTimeLayoutConfig = ({ initialState, setInitialState }) =
  * @doc https://umijs.org/docs/max/request#配置
  */
 export const request = {
-  baseURL: 'http://api-v1.srcandy.top:8099',
+  // baseURL: "http://localhost:8099",
+  baseURL: 'http://api-v1.srcandy.top',
   ...errorConfig,
 };
