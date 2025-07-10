@@ -87,13 +87,19 @@ export default [
     routes: [
       {
         path: '/account',
-        redirect: '/account/center',
+        redirect: './account/center',
       },
       {
         name: 'settings',
         icon: "smile",
         path: '/account/settings',
         component: './account/settings',
+      },
+      {
+        name: 'center',
+        icon: "smile",
+        path: '/account/center',
+        component: './account/center',
       }
     ]
   },

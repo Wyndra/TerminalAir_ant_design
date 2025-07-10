@@ -1,9 +1,10 @@
 import { PageContainer, ProCard } from "@ant-design/pro-components";
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { UploadOutlined, UserOutlined } from '@ant-design/icons';
 import type { UploadProps } from 'antd';
 import { Button, message, Upload, Avatar, Row, Col, Typography, Space } from 'antd';
-
+import {avatar, uploadAvatar} from '@/services/user'
+import {currentUser} from '@/services/ant-design-pro/api'
 const { Text, Title } = Typography;
 
 const props: UploadProps = {
@@ -25,21 +26,67 @@ const props: UploadProps = {
     }
   },
 };
-
+// 定义用户信息类型
+interface UserProfile {
+    nickname: string;
+    email: string;
+    phone: string;
+    avatarUrl?: string;
+    [key: string]: any; // 允许其他属性
+  }
+  
 const Main: React.FC = () => {
   // 模拟用户数据
-  const userData = {
-    nickname: '用户昵称',
-    address: '北京市朝阳区',
-    phone: '138****1234',
-    avatarUrl: '', // 实际应用中这里应该是图片URL
-  };
-
+  const [userData, setUserData] = useState<UserProfile>({
+    nickname: '',
+    email: '',
+    phone: '',
+    avatarUrl: ''
+  });
+  const [loading, setLoading] = useState(false);
+  const [avatarLoading, setAvatarLoading] = useState(false);
+const fetchUserInfo=async ()=>{
+    try{
+        setAvatarLoading(true);
+        const profileResponse =await currentUser();
+        if(profileResponse.data){
+            setUserData(prev=>({
+                ...prev,
+                ...profileResponse.data
+            }))
+        }
+    }catch(error){
+        message.error('获取用户信息失败');
+    }finally{
+        setAvatarLoading(false);
+    }
+}
+    useEffect(() => {
+    fetchUserInfo(); // 组件加载时调用数据获取函数
+  }, []);
+const [isEditing,setIsEditing]=useState(false);
+const [editingUserData, setEditingUserData] = useState<UserProfile>({...userData});
+const handleEditClick =()=>{
+    setEditingUserData({...userData});
+    setIsEditing(true);
+}
+const handleSaveClick=()=>{
+    setUserData(editingUserData)
+    setIsEditing(false)
+    message.success("个人信息修改成功")
+}
+const handleCancelClick=()=>{
+    setIsEditing(false)
+}
   return (
-    <PageContainer>
+    <PageContainer 
+      header={{ title: '个人中心' }}
+      content="管理您的个人信息和账户设置"
+    >
       <ProCard 
         bordered 
         style={{ maxWidth: 600, margin: '0 auto' }}
+        title="个人信息"
       >
         <Row gutter={24} align="middle">
           <Col>
@@ -80,20 +127,28 @@ const Main: React.FC = () => {
             <Space direction="vertical">
               <div>
                 <Text strong style={{ display: 'inline-block', width: 80 }}>昵称：</Text>
-                <Text>{userData.nickname}</Text>
+                {isEditing?(
+                    <input value={editingUserData.nickname}
+                ></input>):(<Text>{userData.nickname}</Text>)}
               </div>
               <div>
-                <Text strong style={{ display: 'inline-block', width: 80 }}>地址：</Text>
-                <Text>{userData.address}</Text>
+              <Text strong style={{ display: 'inline-block', width: 80 }}>邮箱：</Text>
+                {isEditing?(<input value={editingUserData.email}></input>):(<Text>{userData.email}</Text>)}
               </div>
               <div>
-                <Text strong style={{ display: 'inline-block', width: 80 }}>手机号：</Text>
-                <Text>{userData.phone}</Text>
+              <Text strong style={{ display: 'inline-block', width: 80 }}>手机号：</Text>
+                {isEditing?(<input value={editingUserData.phone}></input>):(<Text>{userData.phone}</Text>)}
               </div>
-              
-              <Button type="link" style={{ paddingLeft: 0, marginTop: 8 }}>
+              <div style={{marginTop:8}}>
+                {isEditing?(
+              <Space>
+                <Button type="primary" onClick={handleSaveClick}>保存</Button>
+                <Button onClick={handleCancelClick}>取消</Button>
+              </Space>):
+              <Button type="link" style={{ paddingLeft: 0, marginTop: 8 }} onClick={handleEditClick}>
                 编辑个人信息
-              </Button>
+              </Button>}
+              </div>
             </Space>
           </Col>
         </Row>
