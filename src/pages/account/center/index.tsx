@@ -1,153 +1,229 @@
-import { PageContainer, ProCard } from "@ant-design/pro-components";
+import { PageContainer, ProBreadcrumb, ProCard, ProFormText } from "@ant-design/pro-components";
 import React, { useEffect, useState } from 'react';
 import { UploadOutlined, UserOutlined } from '@ant-design/icons';
 import type { UploadProps } from 'antd';
-import { Button, message, Upload, Avatar, Row, Col, Typography, Space } from 'antd';
-import {avatar, uploadAvatar} from '@/services/user'
-import {currentUser} from '@/services/ant-design-pro/api'
-const { Text, Title } = Typography;
+import {
+  Button, message, Upload, Avatar, Row, Col, Typography, Space, Input,
+} from 'antd';
+import { updateUserInfo, apresigned } from '@/services/user';
+import { currentUser } from '@/services/ant-design-pro/api';
 
-const props: UploadProps = {
-  name: 'file',
-  accept: 'image/*',
-  showUploadList: false,
-  maxCount: 1,
-  beforeUpload: file => {
-    const isImage = file.type.startsWith('image/');
-    if (!isImage) message.error('只能上传图片文件');
-    return isImage;
-  },
-  onChange(info) {
-    if (info.file.status === 'done') {
-      message.success(`${info.file.name} 上传成功`);
-      // 这里可以添加图片预览逻辑
-    } else if (info.file.status === 'error') {
-      message.error(`${info.file.name} 上传失败`);
-    }
-  },
-};
-// 定义用户信息类型
+const { Text } = Typography;
+
 interface UserProfile {
-    nickname: string;
-    email: string;
-    phone: string;
-    avatarUrl?: string;
-    [key: string]: any; // 允许其他属性
-  }
-  
+  nickname: string;
+  email?: string;
+  phone?: string;
+  avatar?: string;
+  [key: string]: any;
+}
+
 const Main: React.FC = () => {
-  // 模拟用户数据
   const [userData, setUserData] = useState<UserProfile>({
     nickname: '',
     email: '',
     phone: '',
-    avatarUrl: ''
+    avatar: '',
   });
-  const [loading, setLoading] = useState(false);
+
+  const [editingData, setEditingData] = useState<UserProfile>({ ...userData });
+  const [isEditing, setIsEditing] = useState(false);
   const [avatarLoading, setAvatarLoading] = useState(false);
-const fetchUserInfo=async ()=>{
-    try{
-        setAvatarLoading(true);
-        const profileResponse =await currentUser();
-        if(profileResponse.data){
-            setUserData(prev=>({
-                ...prev,
-                ...profileResponse.data
-            }))
-        }
-    }catch(error){
-        message.error('获取用户信息失败');
-    }finally{
-        setAvatarLoading(false);
+  const [loading, setLoading] = useState(false);
+
+  const fetchUserInfo = async () => {
+    try {
+      setLoading(true);
+      const profileResponse = await currentUser();
+      if (profileResponse?.data) {
+        setUserData(profileResponse.data);
+        setEditingData(profileResponse.data);
+      }
+    } catch (error) {
+      message.error('获取用户信息失败');
+    } finally {
+      setLoading(false);
     }
-}
-    useEffect(() => {
-    fetchUserInfo(); // 组件加载时调用数据获取函数
+  };
+
+  useEffect(() => {
+    fetchUserInfo();
   }, []);
-const [isEditing,setIsEditing]=useState(false);
-const [editingUserData, setEditingUserData] = useState<UserProfile>({...userData});
-const handleEditClick =()=>{
-    setEditingUserData({...userData});
-    setIsEditing(true);
-}
-const handleSaveClick=()=>{
-    setUserData(editingUserData)
-    setIsEditing(false)
-    message.success("个人信息修改成功")
-}
-const handleCancelClick=()=>{
-    setIsEditing(false)
-}
+
+  const handleSaveClick = async () => {
+    try {
+      setLoading(true);
+      const { nickname, email} = editingData; 
+      const res = await updateUserInfo({ nickname, email});
+
+      if (res?.success) {
+        setUserData(editingData);
+        setIsEditing(false);
+        message.success('个人信息修改成功');
+      } else {
+        message.error(res?.message || '修改失败');
+      }
+    } catch (err) {
+      console.error(err);
+      message.error('修改失败');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCancelClick = () => {
+    setEditingData(userData);
+    setIsEditing(false);
+  };
+
+  const uploadProps: UploadProps = {
+    name: 'file',
+    accept: 'image/*',
+    showUploadList: true,
+    maxCount: 1,
+    beforeUpload: (file) => {
+      const isImage = file.type.startsWith('image/');
+      const isLt2M = file.size / 1024 / 1024 < 2;
+      if (!isImage) {
+        message.error('只能上传图片文件');
+        return false;
+      }
+      if (!isLt2M) {
+        message.error('图片大小不能超过2MB');
+        return false;
+      }
+      return true;
+    },
+    customRequest: async ({ file, onSuccess, onError }) => {
+      try {
+        setAvatarLoading(true);
+        const f = file as File;
+        const presignedRes = await apresigned();
+        const url = presignedRes?.data?.url;
+        const filePath = presignedRes?.data?.filePath;
+        if (!url) throw new Error('获取头像上传地址失败');
+
+        const response = await fetch(url, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': f.type,
+            'Content-Disposition': `attachment; filename="${encodeURIComponent(f.name)}"`,
+          },
+          body: f,
+        });
+
+        if (!response.ok) throw new Error('上传失败: ' + response.statusText);
+        const objectUrl = url.split('?')[0];
+        await updateUserInfo({ avatar: filePath });
+        
+        setUserData(prev => ({
+          ...prev!,
+          avatar: filePath // 使用返回的文件路径
+        }));
+
+        message.success('头像上传成功');
+        onSuccess?.({}, f);
+      } catch (error) {
+        console.error(error);
+        message.error('头像上传失败');
+        onError?.(error as any);
+      } finally {
+        setAvatarLoading(false);
+      }
+    },
+  };
+
   return (
-    <PageContainer 
-      header={{ title: '个人中心' }}
-      content="管理您的个人信息和账户设置"
+    <PageContainer
+    header={{ title: false }}
+    pageHeaderRender={() => {
+        return <ProCard
+            style={{
+                marginBottom: 16,
+                borderRadius: 8
+            }}>
+            <ProBreadcrumb />
+        </ProCard>;
+    }}
     >
-      <ProCard 
-        bordered 
-        style={{ maxWidth: 600, margin: '0 auto' }}
+      <ProCard
+        bordered
         title="个人信息"
+        loading={loading || avatarLoading}
       >
         <Row gutter={24} align="middle">
           <Col>
             <Space direction="vertical" align="center">
-              {/* 头像区域 */}
-              {userData.avatarUrl ? (
-                <Avatar 
-                  size={128} 
-                  src={userData.avatarUrl} 
-                  className="avatar-upload"
-                />
+              {userData.avatar ? (
+                <Avatar size={128} src={userData.avatar} />
               ) : (
-                <Avatar 
-                  size={128} 
-                  icon={<UserOutlined />} 
-                  className="avatar-placeholder"
-                />
+                <Avatar size={128} icon={<UserOutlined />} />
               )}
-              
-              <Upload {...props}>
-                <Button 
-                  type="primary" 
+
+              <Upload {...uploadProps}>
+                <Button
+                  type="primary"
                   icon={<UploadOutlined />}
                   style={{ marginTop: 16 }}
+                  loading={avatarLoading}
                 >
                   更换头像
                 </Button>
               </Upload>
-              
+
               <Text type="secondary" style={{ fontSize: 12, marginTop: 4 }}>
                 支持 JPG/PNG 格式，大小不超过 2MB
               </Text>
             </Space>
           </Col>
-          
+
           <Col flex="auto">
-            {/* 用户信息区域 */}
-            <Space direction="vertical">
+            <Space direction="vertical" size="middle">
               <div>
-                <Text strong style={{ display: 'inline-block', width: 80 }}>昵称：</Text>
-                {isEditing?(
-                    <input value={editingUserData.nickname}
-                ></input>):(<Text>{userData.nickname}</Text>)}
+                <ProFormText
+                label="昵称"
+                name="nickname"
+                initialValue={userData.nickname}
+                fieldProps={{
+                  disabled: !isEditing,
+                  value:isEditing? editingData.nickname :userData.nickname,
+                  onChange: e=>setEditingData({...editingData,nickname:e.target.value})
+                }}/>
               </div>
               <div>
-              <Text strong style={{ display: 'inline-block', width: 80 }}>邮箱：</Text>
-                {isEditing?(<input value={editingUserData.email}></input>):(<Text>{userData.email}</Text>)}
+                <ProFormText
+                label="邮箱"
+                name="email"
+                width={240}
+                initialValue={userData.email}
+                fieldProps={{
+                  disabled: !isEditing,
+                  value:isEditing? editingData.email :userData.email,
+                  onChange: e=>setEditingData({...editingData,email:e.target.value})
+                }}/>
               </div>
+             
+
               <div>
-              <Text strong style={{ display: 'inline-block', width: 80 }}>手机号：</Text>
-                {isEditing?(<input value={editingUserData.phone}></input>):(<Text>{userData.phone}</Text>)}
+                <Text strong style={{ width: 80, display: 'inline-block' }}>手机号：</Text>
+                <Text>{userData.phone || '-'}</Text>
               </div>
-              <div style={{marginTop:8}}>
-                {isEditing?(
-              <Space>
-                <Button type="primary" onClick={handleSaveClick}>保存</Button>
-                <Button onClick={handleCancelClick}>取消</Button>
-              </Space>):
-              <Button type="link" style={{ paddingLeft: 0, marginTop: 8 }} onClick={handleEditClick}>
-                编辑个人信息
-              </Button>}
+
+              <div style={{ marginTop: 8 }}>
+                {isEditing ? (
+                  <Space>
+                    <Button type="primary" onClick={handleSaveClick} loading={loading}>
+                      保存
+                    </Button>
+                    <Button onClick={handleCancelClick} disabled={loading}>
+                      取消
+                    </Button>
+                  </Space>
+                ) : (
+                  <Button type="link" onClick={() => setIsEditing(true)}>
+                    编辑个人信息
+                  </Button>
+                )}
               </div>
             </Space>
           </Col>
@@ -155,6 +231,6 @@ const handleCancelClick=()=>{
       </ProCard>
     </PageContainer>
   );
-}
+};
 
 export default Main;
