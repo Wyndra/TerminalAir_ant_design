@@ -33,7 +33,7 @@ const ConnectList: React.FC = () => {
         {
             dataIndex: 'index',
             valueType: 'indexBorder',
-            width: 48,
+            width: 60,
         },
         {
             title: '名称',
@@ -54,34 +54,19 @@ const ConnectList: React.FC = () => {
         {
             title: '密码',
             dataIndex: 'password',
-            render: (text, record) => {
-              
-              
-              return (
-                <Space>
-                  <Button 
-                    type="text" 
-                    icon={visible ? <EyeOutlined /> : <EyeInvisibleOutlined />}
-                    onClick={() => setVisible(!visible)}
-                  />
-                  {visible?(
-                    <span>{text}</span>
-                  ) : (
-                    <span>{text ? '•'.repeat(3) : ''}</span>
-                  )}
-                </Space>
-              );
-            }
+            valueType:'password',
+            width:300
           },
-        {
+          {
             title: '认证方式',
             dataIndex: 'method',
-            render: (_, record) => (
-                <Tag color={record.method === 'password' ? 'blue' : 'green'}>
-                    {record.method}
-                </Tag>
-            ),
-        },
+            render: (_, record) => {
+              const isPassword = record.method == "0";
+              const color = isPassword ? 'blue' : 'green';
+              const label = isPassword ? '密码认证' : '凭证认证';
+              return <Tag color={color}>{label}</Tag>;
+            },
+          },
         {
             title: '凭证UUID',
             dataIndex: 'credentialUUID',

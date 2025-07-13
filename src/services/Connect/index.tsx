@@ -31,11 +31,7 @@ export interface CreateConnectResponse {
   data: ConnectItem;
 }
 
-/**
- * 获取连接列表 GET /api/connection
- * @param options 请求选项
- * @returns 连接列表响应
- */
+/*获取连接列表 GET /api/connection*/
 export async function currentConnectList(
   params: {
     current?: number;
@@ -49,23 +45,6 @@ export async function currentConnectList(
       page: params.current,
       size: params.pageSize,
     },
-    ...(options || {}),
-  });
-}
-
-/**
- * 创建连接 POST /api/connection
- * @param data 连接数据
- * @param options 请求选项
- * @returns 创建连接响应
- */
-export async function createConnection(
-  data: Omit<ConnectItem, 'id' | 'user_id' | 'credential' | 'uuid'>,
-  options?: { [key: string]: any }
-): Promise<CreateConnectResponse> {
-  return request<CreateConnectResponse>('/api/connection', {
-    method: 'POST',
-    data,
     ...(options || {}),
   });
 }
