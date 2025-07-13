@@ -113,14 +113,13 @@ const Main: React.FC = () => {
         });
 
         if (!response.ok) throw new Error('上传失败: ' + response.statusText);
-        const objectUrl = url.split('?')[0];
         await updateUserInfo({ avatar: filePath });
         
         setUserData(prev => ({
           ...prev!,
           avatar: filePath // 使用返回的文件路径
         }));
-
+        window.location.reload();
         message.success('头像上传成功');
         onSuccess?.({}, f);
       } catch (error) {

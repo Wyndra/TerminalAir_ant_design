@@ -1,4 +1,5 @@
-﻿import component from "@/locales/bn-BD/component";
+﻿import icons from "@/.umi/plugin-layout/icons";
+import component from "@/locales/bn-BD/component";
 import { pa } from "element-plus/es/locale";
 import path from "path";
 
@@ -78,6 +79,23 @@ export default [
       //   name: 'credentials-list',
       //   component: './credentials/list',
       // }
+    ]
+  },
+  {
+    path:'/Connect',
+    name:'Connect',
+    icon:'BranchesOutlined',
+    routes: [
+      {
+        path:'/ConnectList',
+        redirect:'./ConnectList',
+      },
+      {
+        name: 'ConnectList',
+        icon: "smile",
+        path: '/Connect/ConnectList',
+        component: './Connect/ConnectList',
+      }
     ]
   },
   {
