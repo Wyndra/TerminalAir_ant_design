@@ -82,19 +82,14 @@ export default [
     ]
   },
   {
-    path:'/Connect',
-    name:'Connect',
+    path:'/connect',
+    name:'连接管理',
     icon:'BranchesOutlined',
+    component: './connect',
     routes: [
       {
-        path:'/ConnectList',
-        redirect:'./ConnectList',
-      },
-      {
-        name: 'ConnectList',
-        icon: "smile",
-        path: '/Connect/ConnectList',
-        component: './Connect/ConnectList',
+        path:'/connect',
+        redirect:'./connect',
       }
     ]
   },

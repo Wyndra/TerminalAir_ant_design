@@ -22,6 +22,16 @@ export interface ConnectListResponse {
   message: string;
   data: ConnectItem[];
 }
+// 新增连接发送类型
+export interface AddConnectRequest {
+  host: string;
+  port: string;
+  username: string;
+  password: string;
+  name: string;
+  method: string;
+  credentialUUID?: string;
+}
 
 // 定义创建连接响应类型
 export interface CreateConnectResponse {
@@ -45,6 +55,17 @@ export async function currentConnectList(
       page: params.current,
       size: params.pageSize,
     },
+    ...(options || {}),
+  });
+}
+// 创建连接 POST /api/connection
+export async function createConnection(
+  params: AddConnectRequest,
+  options?: { [key: string]: any }
+): Promise<CreateConnectResponse> {
+  return request<CreateConnectResponse>('/api/connection', {
+    method: 'POST',
+    data: params,
     ...(options || {}),
   });
 }
